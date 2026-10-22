@@ -1,0 +1,102 @@
+name: Update migratability report
+
+on:
+  # Run once a week regardless of SDK releases, so the report also reflects
+  # changes on the OpenAPI/service side.
+  schedule:
+    - cron: "0 6 * * 1" # Monday 06:00 UTC
+    # GitHub Actions cannot subscribe to release events from a *different*
+    # repository (globus-sdk is published independently of this repo), so
+    # "run on new globus-sdk release" is implemented by polling PyPI daily
+    # and only doing a full run when the version changes.
+    - cron: "0 12 * * *" # daily at 12:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.decide.outputs.should_run }}
+      sdk_version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -e .
+
+      - id: check
+        run: |
+          globus-migratability check-version \
+            --version-file .globus-sdk-version \
+            --write-on-change \
+            --github-output "$GITHUB_OUTPUT"
+
+      - id: decide
+        run: |
+          # Always run for the weekly schedule and manual dispatch; for the
+          # daily poll, only run if a new globus-sdk version was detected.
+          if [ "${{ github.event_name }}" != "schedule" ] || [ "${{ github.event.schedule }}" = "0 6 * * 1" ] || [ "${{ steps.check.outputs.changed }}" = "true" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Persist detected globus-sdk version
+        if: steps.decide.outputs.should_run == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .globus-sdk-version
+          git diff --cached --quiet || git commit -m "chore: record globus-sdk ${{ steps.check.outputs.version }}"
+          git push
+
+  build:
+    needs: check-release
+    if: needs.check-release.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the specific globus-sdk release being reported on
+        run: |
+          pip install "globus-sdk==${{ needs.check-release.outputs.sdk_version }}"
+          pip install -e . --no-deps
+          pip install requests PyYAML Jinja2
+
+      - name: Run comparison
+        run: |
+          globus-migratability run \
+            --config config/services.yaml \
+            --output-dir site \
+            --repo "${{ github.repository }}"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: [check-release, build]
+    if: needs.check-release.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

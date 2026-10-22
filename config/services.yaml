@@ -1,0 +1,32 @@
+# Services to compare: each entry pairs a published Globus OpenAPI
+# specification with the globus-sdk client class that wraps it.
+#
+# Not every Globus service currently publishes a machine-readable OpenAPI
+# document (Transfer and Auth do not, as of writing), so only services with
+# a known-good spec URL are listed here. Add more entries as Globus
+# publishes specs for additional services.
+services:
+  - name: groups
+    openapi_url: https://groups.api.globus.org/openapi.json
+    sdk_module: globus_sdk
+    sdk_class: GroupsClient
+
+  - name: flows
+    openapi_url: https://flows.globus.org/openapi.json
+    sdk_module: globus_sdk
+    sdk_class: FlowsClient
+
+  - name: search
+    openapi_url: https://search.api.globus.org/autodoc/openapi.json
+    sdk_module: globus_sdk
+    sdk_class: SearchClient
+
+  - name: compute
+    openapi_url: https://compute.api.globus.org/openapi.json
+    sdk_module: globus_sdk
+    sdk_class: ComputeClientV2
+
+  - name: timers
+    openapi_url: https://timer.automate.globus.org/openapi.json
+    sdk_module: globus_sdk
+    sdk_class: TimersClient
