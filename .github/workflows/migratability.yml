@@ -1,6 +1,10 @@
 name: Update migratability report
 
 on:
+  # Rebuild immediately whenever main changes, so the published site always
+  # reflects the latest comparison logic/config, not just the latest SDK.
+  push:
+    branches: [main]
   # Run once a week regardless of SDK releases, so the report also reflects
   # changes on the OpenAPI/service side.
   schedule:
