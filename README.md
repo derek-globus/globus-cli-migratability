@@ -60,11 +60,14 @@ pytest
 
 ## Configuring which services are compared
 
-[`config/services.yaml`](config/services.yaml) lists one entry per service:
-an OpenAPI spec URL and the `globus-sdk` class that wraps it. Not every
-Globus service currently publishes a machine-readable OpenAPI document
-(Transfer and Auth do not, as of writing) — add an entry here once a spec
-becomes available.
+[`config/services.yaml`](config/services.yaml) lists one entry per service: a
+`globus-sdk` class, and the OpenAPI spec URL for the service it wraps. Not
+every Globus service currently publishes a machine-readable OpenAPI document
+with a single fixed URL (Transfer, Auth, and GCS do not, as of writing).
+Those are still listed, with `openapi_url` omitted, so they show up in the
+report at 0% coverage — with all their SDK methods listed, unscored, for
+completeness — rather than being silently left out. Fill in `openapi_url`
+for any of them once a fetchable spec becomes available.
 
 ## GitHub Actions workflow
 

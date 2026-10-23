@@ -110,6 +110,12 @@
           <td>The SDK method's docstring has no parseable route or operationId reference, so it couldn't be matched either way.</td></tr>
       </tbody>
     </table>
+    <p>
+      A separate <code>no_spec</code> status (not an aberration) applies to whole services with no
+      fetchable OpenAPI spec at all &mdash; Transfer, Auth, and GCS, as of writing. Their SDK methods
+      are still listed in the report, at 0% coverage, for completeness; nothing about them is
+      actually being compared.
+    </p>
   </div>
 
   <div class="step">

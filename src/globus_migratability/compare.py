@@ -32,7 +32,7 @@ class Aberration:
 class MethodComparison:
     sdk_method: SdkMethodInfo | None
     openapi_op: OpenApiOperation | None
-    status: str  # "matched" | "sdk_only" | "spec_only"
+    status: str  # "matched" | "sdk_only" | "spec_only" | "no_spec"
     score: float  # 0.0 - 1.0, only meaningful when matched
     param_coverage: float | None
     missing_params: tuple[str, ...]
@@ -58,6 +58,7 @@ class ServiceComparison:
     sdk_version: str
     methods: list[MethodComparison] = field(default_factory=list)
     group_order: tuple[str, ...] = ()
+    has_spec: bool = True
 
     @property
     def grouped_methods(self) -> list[tuple[str, list[MethodComparison]]]:
@@ -352,4 +353,43 @@ def compare_service(
             m.group = MISSING_FROM_SDK_GROUP
 
     result.methods.sort(key=lambda m: (m.status != "matched", m.label))
+    return result
+
+
+def service_without_spec(
+    sdk_class_info: SdkClientInfo,
+    method_groups: MethodGroups | None = None,
+) -> ServiceComparison:
+    """Build a ServiceComparison for a service with no fetchable OpenAPI spec.
+
+    Nothing can be compared, so every SDK method is listed, unscored, under
+    status "no_spec" -- this keeps the service visible in the report (at 0%
+    coverage) for completeness, rather than omitting it silently.
+    """
+    mapping = method_groups.mapping if method_groups else {}
+    result = ServiceComparison(
+        service=sdk_class_info.service,
+        sdk_class=sdk_class_info.class_name,
+        spec_title="(no OpenAPI spec published)",
+        spec_version="n/a",
+        sdk_version=sdk_class_info.sdk_version,
+        group_order=method_groups.order if method_groups else (),
+        has_spec=False,
+    )
+    for method in sdk_class_info.methods:
+        result.methods.append(
+            MethodComparison(
+                sdk_method=method,
+                openapi_op=None,
+                status="no_spec",
+                score=0.0,
+                param_coverage=None,
+                missing_params=(),
+                extra_sdk_params=(),
+                response_shape_ok=None,
+                aberrations=[],
+                group=mapping.get(method.name, UNCATEGORIZED_GROUP),
+            )
+        )
+    result.methods.sort(key=lambda m: m.label)
     return result

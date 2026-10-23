@@ -11,9 +11,12 @@ import yaml
 @dataclass(frozen=True)
 class ServiceConfig:
     name: str
-    openapi_url: str
     sdk_module: str
     sdk_class: str
+    # None for a Globus service with no published, fetchable OpenAPI spec
+    # (e.g. Transfer, Auth). Such services are still listed, at 0%
+    # coverage, for completeness.
+    openapi_url: str | None = None
 
 
 UNCATEGORIZED = "Uncategorized"
@@ -58,9 +61,9 @@ def load_services(path: str | Path) -> list[ServiceConfig]:
         services.append(
             ServiceConfig(
                 name=entry["name"],
-                openapi_url=entry["openapi_url"],
                 sdk_module=entry["sdk_module"],
                 sdk_class=entry["sdk_class"],
+                openapi_url=entry.get("openapi_url") or None,
             )
         )
     return services

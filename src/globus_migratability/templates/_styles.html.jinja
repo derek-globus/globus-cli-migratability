@@ -56,6 +56,8 @@
   .card h2 { margin: 0 0 0.6rem; font-size: 1.1rem; }
   .card .big { font-size: 1.8rem; font-weight: 700; }
   .card .row { display: flex; justify-content: space-between; margin-top: 0.35rem; font-size: 0.9rem; color: var(--muted); }
+  .card.card-no-spec { opacity: 0.75; }
+  .card.card-no-spec .big { color: var(--muted); }
   table { width: 100%; border-collapse: collapse; margin-bottom: 2.5rem; font-size: 0.92rem; }
   th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
   th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
@@ -70,6 +72,7 @@
   .badge.matched { background: rgba(63,185,80,0.15); color: var(--good); }
   .badge.sdk_only { background: rgba(210,153,34,0.15); color: var(--warn); }
   .badge.spec_only { background: rgba(248,81,73,0.15); color: var(--bad); }
+  .badge.no_spec { background: rgba(154,164,178,0.15); color: var(--muted); }
   .score-bar { display: inline-block; width: 70px; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; vertical-align: middle; margin-right: 0.5rem; }
   .score-fill { display: block; height: 100%; background: var(--accent); }
   .aberr { font-size: 0.85rem; margin: 0.15rem 0; }

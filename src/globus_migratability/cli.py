@@ -7,7 +7,7 @@ import json
 import sys
 from pathlib import Path
 
-from .compare import Report, compare_service
+from .compare import Report, compare_service, service_without_spec
 from .config import load_method_groups, load_services
 from .examples import pick_examples
 from .openapi_loader import load_spec
@@ -26,12 +26,16 @@ def _build_report(config_path: str, method_groups_path: str) -> Report:
         sdk_version=getattr(globus_sdk, "__version__", "unknown"),
     )
     for svc in services:
+        sdk_info = introspect_client(svc.sdk_module, svc.sdk_class, svc.name)
+        groups = method_groups.get(svc.name)
+        if svc.openapi_url is None:
+            print(f"Listing service (no spec): {svc.name} ...", file=sys.stderr)
+            report.services.append(service_without_spec(sdk_info, groups))
+            continue
+
         print(f"Comparing service: {svc.name} ...", file=sys.stderr)
         spec = load_spec(svc.name, svc.openapi_url)
-        sdk_info = introspect_client(svc.sdk_module, svc.sdk_class, svc.name)
-        report.services.append(
-            compare_service(sdk_info, spec, method_groups.get(svc.name))
-        )
+        report.services.append(compare_service(sdk_info, spec, groups))
     return report
 
 

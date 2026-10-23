@@ -1,10 +1,12 @@
-# Services to compare: each entry pairs a published Globus OpenAPI
-# specification with the globus-sdk client class that wraps it.
+# Services to compare: each entry pairs a globus-sdk client class with the
+# published OpenAPI specification for the service it wraps.
 #
 # Not every Globus service currently publishes a machine-readable OpenAPI
-# document (Transfer and Auth do not, as of writing), so only services with
-# a known-good spec URL are listed here. Add more entries as Globus
-# publishes specs for additional services.
+# document (or, for GCS, a single fixed spec URL independent of a specific
+# endpoint deployment). Those are still listed below with no `openapi_url`
+# so they show up in the report (at 0% coverage, since nothing can be
+# compared) rather than being silently omitted. Fill in `openapi_url` for
+# any of them once Globus publishes a fetchable spec.
 services:
   - name: groups
     openapi_url: https://groups.api.globus.org/openapi.json
@@ -30,3 +32,18 @@ services:
     openapi_url: https://timer.automate.globus.org/openapi.json
     sdk_module: globus_sdk
     sdk_class: TimersClient
+
+  # No published OpenAPI spec as of writing; listed for completeness.
+  - name: transfer
+    sdk_module: globus_sdk
+    sdk_class: TransferClient
+
+  - name: auth
+    sdk_module: globus_sdk
+    sdk_class: AuthClient
+
+  # Globus Connect Server: each deployment serves its own API at its own
+  # endpoint, so there's no single fixed spec URL to poll here.
+  - name: gcs
+    sdk_module: globus_sdk
+    sdk_class: GCSClient

@@ -114,3 +114,146 @@ services:
     Scope Helpers:
       - add_app_flow_user_scope
       - add_app_transfer_data_access_scope
+
+  transfer:
+    Endpoints:
+      - get_endpoint
+      - update_endpoint
+      - delete_endpoint
+      - endpoint_search
+      - endpoint_server_list
+      - get_endpoint_server
+      - create_shared_endpoint
+      - get_shared_endpoint_list
+      - my_shared_endpoint_list
+      - add_app_data_access_scope
+    Access Control:
+      - endpoint_acl_list
+      - get_endpoint_acl_rule
+      - add_endpoint_acl_rule
+      - update_endpoint_acl_rule
+      - delete_endpoint_acl_rule
+      - endpoint_role_list
+      - get_endpoint_role
+      - add_endpoint_role
+      - delete_endpoint_role
+      - set_subscription_admin_verified
+      - set_subscription_id
+    Transfer & Delete Tasks:
+      - submit_transfer
+      - submit_delete
+      - get_submission_id
+      - get_task
+      - task_list
+      - cancel_task
+      - update_task
+      - task_wait
+      - task_event_list
+      - task_pause_info
+      - task_skipped_errors
+      - task_successful_transfers
+      - my_effective_pause_rule_list
+    File Operations:
+      - operation_ls
+      - operation_mkdir
+      - operation_rename
+      - operation_stat
+    Bookmarks:
+      - bookmark_list
+      - get_bookmark
+      - create_bookmark
+      - update_bookmark
+      - delete_bookmark
+    Tunnels (beta):
+      - list_tunnels
+      - get_tunnel
+      - create_tunnel
+      - delete_tunnel
+      - get_tunnel_events
+      - get_stream_access_point
+    Endpoint Manager (admin):
+      - endpoint_manager_acl_list
+      - endpoint_manager_cancel_status
+      - endpoint_manager_cancel_tasks
+      - endpoint_manager_create_pause_rule
+      - endpoint_manager_delete_pause_rule
+      - endpoint_manager_get_endpoint
+      - endpoint_manager_get_pause_rule
+      - endpoint_manager_get_task
+      - endpoint_manager_hosted_endpoint_list
+      - endpoint_manager_monitored_endpoints
+      - endpoint_manager_pause_rule_list
+      - endpoint_manager_pause_tasks
+      - endpoint_manager_resume_tasks
+      - endpoint_manager_task_event_list
+      - endpoint_manager_task_list
+      - endpoint_manager_task_pause_info
+      - endpoint_manager_task_skipped_errors
+      - endpoint_manager_task_successful_transfers
+      - endpoint_manager_update_pause_rule
+
+  auth:
+    Identities:
+      - get_identities
+      - get_identity_providers
+      - get_consents
+      - userinfo
+    OIDC Discovery:
+      - get_openid_configuration
+      - get_jwk
+    Clients & Credentials:
+      - get_clients
+      - get_client
+      - create_client
+      - update_client
+      - delete_client
+      - get_client_credentials
+      - create_client_credential
+      - delete_client_credential
+    Projects:
+      - get_projects
+      - get_project
+      - create_project
+      - update_project
+      - delete_project
+    Scopes:
+      - get_scopes
+      - get_scope
+      - create_scope
+      - update_scope
+      - delete_scope
+    Policies:
+      - get_policies
+      - get_policy
+      - create_policy
+      - update_policy
+      - delete_policy
+
+  gcs:
+    Endpoint:
+      - get_endpoint
+      - update_endpoint
+      - get_gcs_info
+    Collections:
+      - get_collection_list
+      - get_collection
+      - create_collection
+      - update_collection
+      - delete_collection
+    Storage Gateways:
+      - get_storage_gateway_list
+      - get_storage_gateway
+      - create_storage_gateway
+      - update_storage_gateway
+      - delete_storage_gateway
+    User Credentials:
+      - get_user_credential_list
+      - get_user_credential
+      - create_user_credential
+      - update_user_credential
+      - delete_user_credential
+    Roles:
+      - get_role_list
+      - get_role
+      - create_role
+      - delete_role

@@ -17,13 +17,17 @@
 
   <div class="summary-grid">
     {% for svc in report.services %}
-    <div class="card">
+    <div class="card{{ ' card-no-spec' if not svc.has_spec else '' }}">
       <h2>{{ svc.service }}</h2>
       <div class="big">{{ "%.0f"|format(svc.coverage_pct) }}%</div>
+      {% if svc.has_spec %}
       <div class="row"><span>API coverage</span><span>{{ svc.covered_operations }}/{{ svc.total_operations }} ops</span></div>
       <div class="row"><span>Avg. fidelity</span><span>{{ "%.0f"|format(svc.avg_fidelity_pct) }}%</span></div>
       <div class="row"><span>Aberrations</span><span>{{ svc.aberration_count }}</span></div>
       <div class="row"><span>Spec version</span><span>{{ svc.spec_version }}</span></div>
+      {% else %}
+      <div class="row"><span>No OpenAPI spec published &mdash; {{ svc.methods|length }} SDK method(s) listed for completeness</span></div>
+      {% endif %}
     </div>
     {% endfor %}
   </div>
@@ -31,7 +35,13 @@
   {% for svc in report.services %}
   <section id="{{ svc.service }}">
     <h2>{{ svc.service }} &mdash; <code>{{ svc.sdk_class }}</code></h2>
+    {% if svc.has_spec %}
     <p class="meta">OpenAPI title: {{ svc.spec_title }} ({{ svc.spec_version }})</p>
+    {% else %}
+    <p class="meta">No OpenAPI spec is currently published for this service (or, for GCS, no single
+      fixed spec URL independent of a specific deployment) &mdash; methods are listed below for
+      completeness only and cannot be scored.</p>
+    {% endif %}
 
     {% for group_name, group_methods in svc.grouped_methods %}
     {% set ns = namespace(aberrations=0) %}
