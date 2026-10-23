@@ -8,17 +8,18 @@ import sys
 from pathlib import Path
 
 from .compare import Report, compare_service
-from .config import load_services
+from .config import load_method_groups, load_services
 from .openapi_loader import load_spec
 from .pypi import latest_version
 from .report_html import write_report_html
 from .sdk_introspect import introspect_client
 
 
-def _build_report(config_path: str) -> Report:
+def _build_report(config_path: str, method_groups_path: str) -> Report:
     import globus_sdk
 
     services = load_services(config_path)
+    method_groups = load_method_groups(method_groups_path)
     report = Report(
         generated_at=dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         sdk_version=getattr(globus_sdk, "__version__", "unknown"),
@@ -27,7 +28,9 @@ def _build_report(config_path: str) -> Report:
         print(f"Comparing service: {svc.name} ...", file=sys.stderr)
         spec = load_spec(svc.name, svc.openapi_url)
         sdk_info = introspect_client(svc.sdk_module, svc.sdk_class, svc.name)
-        report.services.append(compare_service(sdk_info, spec))
+        report.services.append(
+            compare_service(sdk_info, spec, method_groups.get(svc.name))
+        )
     return report
 
 
@@ -45,7 +48,7 @@ def _report_to_json(report: Report) -> dict:
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    report = _build_report(args.config)
+    report = _build_report(args.config, args.method_groups)
 
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -91,6 +94,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     run_p = sub.add_parser("run", help="Compare SDK clients against OpenAPI specs and render a report")
     run_p.add_argument("--config", default="config/services.yaml")
+    run_p.add_argument("--method-groups", default="config/method_groups.yaml")
     run_p.add_argument("--output-dir", default="site")
     run_p.add_argument("--repo", default="globus/globus-cli-migratability")
     run_p.set_defaults(func=cmd_run)

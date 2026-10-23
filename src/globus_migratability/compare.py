@@ -12,10 +12,13 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from .config import MethodGroups
 from .openapi_loader import OpenApiOperation, OpenApiSpec
 from .sdk_introspect import SdkClientInfo, SdkMethodInfo
 
 _ARRAY_WRAPPERS = ("ArrayResponse", "IterableResponse", "IterableJSONAPIResponse")
+UNCATEGORIZED_GROUP = "Uncategorized"
+MISSING_FROM_SDK_GROUP = "Missing from SDK"
 
 
 @dataclass
@@ -36,6 +39,7 @@ class MethodComparison:
     extra_sdk_params: tuple[str, ...]
     response_shape_ok: bool | None
     aberrations: list[Aberration] = field(default_factory=list)
+    group: str = UNCATEGORIZED_GROUP
 
     @property
     def label(self) -> str:
@@ -53,6 +57,32 @@ class ServiceComparison:
     spec_version: str
     sdk_version: str
     methods: list[MethodComparison] = field(default_factory=list)
+    group_order: tuple[str, ...] = ()
+
+    @property
+    def grouped_methods(self) -> list[tuple[str, list[MethodComparison]]]:
+        """Methods bucketed by their documentation group, in display order.
+
+        Curated groups (from config/method_groups.yaml) come first, in the
+        order they're declared there; any methods not covered by a curated
+        group fall into "Uncategorized"; OpenAPI operations with no SDK
+        method at all are bucketed separately, last.
+        """
+        by_group: dict[str, list[MethodComparison]] = {}
+        for m in self.methods:
+            by_group.setdefault(m.group, []).append(m)
+
+        ordered_names = [g for g in self.group_order if g in by_group]
+        if UNCATEGORIZED_GROUP in by_group and UNCATEGORIZED_GROUP not in ordered_names:
+            ordered_names.append(UNCATEGORIZED_GROUP)
+        if MISSING_FROM_SDK_GROUP in by_group and MISSING_FROM_SDK_GROUP not in ordered_names:
+            ordered_names.append(MISSING_FROM_SDK_GROUP)
+        # Anything unexpected (shouldn't normally happen) still shows up.
+        for name in by_group:
+            if name not in ordered_names:
+                ordered_names.append(name)
+
+        return [(name, by_group[name]) for name in ordered_names]
 
     @property
     def total_operations(self) -> int:
@@ -203,7 +233,11 @@ def _compare_params(sdk_method: SdkMethodInfo, openapi_op: OpenApiOperation) -> 
     )
 
 
-def compare_service(sdk_class_info: SdkClientInfo, spec: OpenApiSpec) -> ServiceComparison:
+def compare_service(
+    sdk_class_info: SdkClientInfo,
+    spec: OpenApiSpec,
+    method_groups: MethodGroups | None = None,
+) -> ServiceComparison:
     spec_index: dict[tuple, list[OpenApiOperation]] = spec.by_route_key()
     by_operation_id: dict[str, OpenApiOperation] = {
         op.operation_id: op for op in spec.operations if op.operation_id
@@ -216,6 +250,7 @@ def compare_service(sdk_class_info: SdkClientInfo, spec: OpenApiSpec) -> Service
         spec_title=spec.title,
         spec_version=spec.version,
         sdk_version=sdk_class_info.sdk_version,
+        group_order=method_groups.order if method_groups else (),
     )
 
     for method in sdk_class_info.methods:
@@ -308,6 +343,13 @@ def compare_service(sdk_class_info: SdkClientInfo, spec: OpenApiSpec) -> Service
                 ],
             )
         )
+
+    mapping = method_groups.mapping if method_groups else {}
+    for m in result.methods:
+        if m.sdk_method is not None:
+            m.group = mapping.get(m.sdk_method.name, UNCATEGORIZED_GROUP)
+        else:
+            m.group = MISSING_FROM_SDK_GROUP
 
     result.methods.sort(key=lambda m: (m.status != "matched", m.label))
     return result

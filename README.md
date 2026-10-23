@@ -64,6 +64,8 @@ becomes available.
 [`.github/workflows/migratability.yml`](.github/workflows/migratability.yml)
 regenerates and publishes the report to GitHub Pages:
 
+- **On every push to `main`** — so the published site always reflects the
+  latest comparison logic/config, not just the latest SDK release.
 - **Weekly**, on a fixed schedule, regardless of SDK version — this catches
   drift introduced purely on the OpenAPI/service side.
 - **On every new `globus-sdk` release.** GitHub Actions has no native event

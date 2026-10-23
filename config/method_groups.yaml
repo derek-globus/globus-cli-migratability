@@ -1,0 +1,116 @@
+# Hand-curated, documentation-style groupings of globus-sdk client methods,
+# per service. This is maintained by hand (it is not derived from the
+# OpenAPI spec's own `tags`) so that the report's grouping matches how a
+# human-facing docs page would organize these methods.
+#
+# Any SDK method not listed here for its service falls back to the
+# "Uncategorized" group in the report. OpenAPI operations with no
+# corresponding SDK method are reported separately, since they have no
+# method name to classify.
+services:
+  groups:
+    Group Management:
+      - create_group
+      - get_group
+      - update_group
+      - delete_group
+      - get_my_groups
+      - get_group_by_subscription_id
+    Memberships:
+      - batch_membership_action
+      - get_membership_fields
+      - set_membership_fields
+    Policies & Preferences:
+      - get_group_policies
+      - set_group_policies
+      - get_identity_preferences
+      - set_identity_preferences
+    Subscriptions:
+      - set_subscription_admin_verified
+
+  flows:
+    Flow Definitions:
+      - create_flow
+      - get_flow
+      - update_flow
+      - delete_flow
+      - validate_flow
+      - list_flows
+    Flow Runs:
+      - get_run
+      - list_runs
+      - cancel_run
+      - delete_run
+      - update_run
+      - get_run_definition
+      - get_run_logs
+    Web/API Inputs:
+      - get_registered_api
+      - list_registered_apis
+      - get_web_input
+      - list_web_inputs
+      - respond_to_web_input
+
+  search:
+    Indices:
+      - create_index
+      - get_index
+      - update_index
+      - delete_index
+      - reopen_index
+      - index_list
+    Entries & Documents:
+      - ingest
+      - get_entry
+      - delete_entry
+      - get_subject
+      - delete_subject
+      - batch_delete_by_subject
+      - delete_by_query
+    Querying:
+      - search
+      - post_search
+      - scroll
+    Tasks:
+      - get_task
+      - get_task_list
+    Roles:
+      - create_role
+      - delete_role
+      - get_role_list
+
+  compute:
+    Endpoints:
+      - register_endpoint
+      - get_endpoint
+      - get_endpoints
+      - get_endpoint_status
+      - delete_endpoint
+      - lock_endpoint
+    Functions:
+      - register_function
+      - get_function
+      - delete_function
+    Tasks & Submission:
+      - submit
+      - get_task
+      - get_task_batch
+      - get_task_group
+    Service Info:
+      - get_version
+      - get_result_amqp_url
+
+  timers:
+    Timers:
+      - create_timer
+    Jobs (legacy):
+      - create_job
+      - get_job
+      - list_jobs
+      - update_job
+      - delete_job
+      - pause_job
+      - resume_job
+    Scope Helpers:
+      - add_app_flow_user_scope
+      - add_app_transfer_data_access_scope

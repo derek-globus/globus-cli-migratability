@@ -66,6 +66,35 @@
   a { color: var(--accent); }
   section { margin-bottom: 3rem; }
   .pill-list { list-style: none; margin: 0; padding: 0; }
+  details.group {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 0.6rem;
+    overflow: hidden;
+  }
+  details.group table { margin-bottom: 0; }
+  details.group summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 0.65rem 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  details.group summary::-webkit-details-marker { display: none; }
+  details.group summary::before {
+    content: "▸";
+    display: inline-block;
+    margin-right: 0.6rem;
+    color: var(--muted);
+    transition: transform 0.1s ease;
+  }
+  details.group[open] summary::before { transform: rotate(90deg); }
+  details.group summary .group-meta { font-weight: 400; color: var(--muted); font-size: 0.82rem; }
+  details.group summary:hover { background: rgba(255,255,255,0.03); }
 </style>
 </head>
 <body>
@@ -93,40 +122,57 @@
   <section id="{{ svc.service }}">
     <h2>{{ svc.service }} &mdash; <code>{{ svc.sdk_class }}</code></h2>
     <p class="meta">OpenAPI title: {{ svc.spec_title }} ({{ svc.spec_version }})</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Status</th>
-          <th>Route</th>
-          <th>SDK method</th>
-          <th>Fidelity</th>
-          <th>Aberrations</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for m in svc.methods %}
-        <tr>
-          <td><span class="badge {{ m.status }}">{{ m.status }}</span></td>
-          <td class="route">{{ m.label }}</td>
-          <td>{{ m.sdk_method.qualname if m.sdk_method else "&mdash;" }}</td>
-          <td>
-            {% if m.status == "matched" %}
-            <span class="score-bar"><span class="score-fill" style="width: {{ (m.score * 100)|round|int }}%"></span></span>{{ "%.0f"|format(m.score * 100) }}%
-            {% else %}&mdash;{% endif %}
-          </td>
-          <td>
-            {% if m.aberrations %}
-            <ul class="pill-list">
-              {% for a in m.aberrations %}
-              <li class="aberr {{ a.severity }}">&bull; {{ a.message }}</li>
-              {% endfor %}
-            </ul>
-            {% else %}&mdash;{% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+
+    {% for group_name, group_methods in svc.grouped_methods %}
+    {% set ns = namespace(aberrations=0) %}
+    {% for gm in group_methods %}{% set ns.aberrations = ns.aberrations + gm.aberrations|length %}{% endfor %}
+    <details class="group">
+      <summary>
+        <span>{{ group_name }}</span>
+        <span class="group-meta">
+          {{ group_methods|length }} method{{ "s" if group_methods|length != 1 else "" }}
+          &middot;
+          {{ group_methods|selectattr("status", "equalto", "matched")|list|length }} matched
+          &middot;
+          {{ ns.aberrations }} aberration{{ "s" if ns.aberrations != 1 else "" }}
+        </span>
+      </summary>
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Route</th>
+            <th>SDK method</th>
+            <th>Fidelity</th>
+            <th>Aberrations</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in group_methods %}
+          <tr>
+            <td><span class="badge {{ m.status }}">{{ m.status }}</span></td>
+            <td class="route">{{ m.label }}</td>
+            <td>{{ m.sdk_method.qualname if m.sdk_method else "&mdash;" }}</td>
+            <td>
+              {% if m.status == "matched" %}
+              <span class="score-bar"><span class="score-fill" style="width: {{ (m.score * 100)|round|int }}%"></span></span>{{ "%.0f"|format(m.score * 100) }}%
+              {% else %}&mdash;{% endif %}
+            </td>
+            <td>
+              {% if m.aberrations %}
+              <ul class="pill-list">
+                {% for a in m.aberrations %}
+                <li class="aberr {{ a.severity }}">&bull; {{ a.message }}</li>
+                {% endfor %}
+              </ul>
+              {% else %}&mdash;{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </details>
+    {% endfor %}
   </section>
   {% endfor %}
 
