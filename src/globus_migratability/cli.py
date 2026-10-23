@@ -9,9 +9,10 @@ from pathlib import Path
 
 from .compare import Report, compare_service
 from .config import load_method_groups, load_services
+from .examples import pick_examples
 from .openapi_loader import load_spec
 from .pypi import latest_version
-from .report_html import write_report_html
+from .report_html import write_methodology_html, write_report_html
 from .sdk_introspect import introspect_client
 
 
@@ -54,9 +55,15 @@ def cmd_run(args: argparse.Namespace) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     write_report_html(report, out_dir / "index.html", repo=args.repo)
+    examples = pick_examples(report)
+    write_methodology_html(report, examples, out_dir / "methodology.html", repo=args.repo)
     (out_dir / "report.json").write_text(json.dumps(_report_to_json(report), indent=2))
 
-    print(f"Wrote {out_dir / 'index.html'} and {out_dir / 'report.json'}", file=sys.stderr)
+    print(
+        f"Wrote {out_dir / 'index.html'}, {out_dir / 'methodology.html'}, "
+        f"and {out_dir / 'report.json'}",
+        file=sys.stderr,
+    )
 
     for svc in report.services:
         print(

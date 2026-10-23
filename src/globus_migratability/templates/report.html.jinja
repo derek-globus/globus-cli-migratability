@@ -4,100 +4,10 @@
 <meta charset="utf-8">
 <title>globus-sdk Migratability Report</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-  :root {
-    --bg: #0f1216;
-    --panel: #171b21;
-    --border: #2a2f37;
-    --text: #e6e9ef;
-    --muted: #9aa4b2;
-    --good: #3fb950;
-    --warn: #d29922;
-    --bad: #f85149;
-    --accent: #58a6ff;
-  }
-  * { box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    margin: 0;
-    padding: 2rem;
-    line-height: 1.5;
-  }
-  h1 { margin-bottom: 0.25rem; }
-  .meta { color: var(--muted); margin-bottom: 2rem; font-size: 0.9rem; }
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-  }
-  .card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.1rem 1.3rem;
-  }
-  .card h2 { margin: 0 0 0.6rem; font-size: 1.1rem; }
-  .card .big { font-size: 1.8rem; font-weight: 700; }
-  .card .row { display: flex; justify-content: space-between; margin-top: 0.35rem; font-size: 0.9rem; color: var(--muted); }
-  table { width: 100%; border-collapse: collapse; margin-bottom: 2.5rem; font-size: 0.92rem; }
-  th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
-  th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
-  tr:hover { background: rgba(255,255,255,0.02); }
-  .badge {
-    display: inline-block;
-    padding: 0.1rem 0.5rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-  .badge.matched { background: rgba(63,185,80,0.15); color: var(--good); }
-  .badge.sdk_only { background: rgba(210,153,34,0.15); color: var(--warn); }
-  .badge.spec_only { background: rgba(248,81,73,0.15); color: var(--bad); }
-  .score-bar { display: inline-block; width: 70px; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; vertical-align: middle; margin-right: 0.5rem; }
-  .score-fill { display: block; height: 100%; background: var(--accent); }
-  .aberr { font-size: 0.85rem; margin: 0.15rem 0; }
-  .aberr.error { color: var(--bad); }
-  .aberr.warning { color: var(--warn); }
-  .aberr.info { color: var(--muted); }
-  .route { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; }
-  a { color: var(--accent); }
-  section { margin-bottom: 3rem; }
-  .pill-list { list-style: none; margin: 0; padding: 0; }
-  details.group {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 0.6rem;
-    overflow: hidden;
-  }
-  details.group table { margin-bottom: 0; }
-  details.group summary {
-    cursor: pointer;
-    list-style: none;
-    padding: 0.65rem 1rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-  details.group summary::-webkit-details-marker { display: none; }
-  details.group summary::before {
-    content: "▸";
-    display: inline-block;
-    margin-right: 0.6rem;
-    color: var(--muted);
-    transition: transform 0.1s ease;
-  }
-  details.group[open] summary::before { transform: rotate(90deg); }
-  details.group summary .group-meta { font-weight: 400; color: var(--muted); font-size: 0.82rem; }
-  details.group summary:hover { background: rgba(255,255,255,0.03); }
-</style>
+{% include "_styles.html.jinja" %}
 </head>
 <body>
+  {% include "_nav.html.jinja" %}
   <h1>globus-sdk Migratability Report</h1>
   <div class="meta">
     Generated {{ report.generated_at }} &middot; globus-sdk version <code>{{ report.sdk_version }}</code>

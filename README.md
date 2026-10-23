@@ -34,6 +34,12 @@ in the method's source (covering the common pattern of building a
 it's meant to surface likely drift for a human to double check, not to be
 authoritative.
 
+The published site includes a second page, **How Comparison Works**
+(`methodology.html`, linked from the report's nav bar), which walks through
+each matching/scoring step above using real matched and mismatched examples
+pulled from that run's results — not hand-written samples — so it stays in
+sync with the matcher's actual behavior.
+
 ## Running locally
 
 ```bash
@@ -41,8 +47,9 @@ pip install -e .
 globus-migratability run --config config/services.yaml --output-dir site --repo <owner>/<repo>
 ```
 
-This writes `site/index.html` (the report) and `site/report.json` (the same
-data, machine-readable).
+This writes `site/index.html` (the report), `site/methodology.html` (the
+"how comparison works" page), and `site/report.json` (the report data,
+machine-readable).
 
 Run the tests with:
 
